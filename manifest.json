@@ -1,0 +1,9 @@
+{
+  "repos": [
+    {
+      "id": "lnpos",
+      "organisation": "lnbits",
+      "repository": "lnpos_extension"
+    }
+  ]
+}
