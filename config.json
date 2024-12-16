@@ -1,4 +1,5 @@
 {
+  "id": "lnpos",
   "name": "LNPoS",
   "short_description": "LNPoS lightning point of sale",
   "tile": "/lnpos/static/image/lnpos.png",
