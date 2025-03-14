@@ -49,13 +49,15 @@ async def lnurl_params(
         logger.debug(f"Payload: {payload}")
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid payload.") from e
 
-    pin, amount = msg.split(":")
-    if lnpos.currency == "sat":
-        price_sat = int(amount)
-    else:
-        price_sat = await fiat_amount_as_satoshis(float(amount) / 100, lnpos.currency)
-        if price_sat is None:
-            raise HTTPException(HTTPStatus.BAD_REQUEST, "Price fetch error.")
+    pin, amount_in_cent = msg.split(":")
+
+    price_sat = (
+        await fiat_amount_as_satoshis(float(amount_in_cent) / 100, lnpos.currency)
+        if lnpos.currency != "sat"
+        else int(amount_in_cent)
+    )
+    if price_sat is None:
+        raise HTTPException(HTTPStatus.BAD_REQUEST, detail="Price fetch error.")
 
     price_sat = int(price_sat * ((lnpos.profit / 100) + 1))
     price_msat = price_sat * 1000
