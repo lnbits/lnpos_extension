@@ -26,7 +26,6 @@ async def m001_initial(db):
             id TEXT NOT NULL PRIMARY KEY,
             lnpos_id TEXT NOT NULL,
             payment_hash TEXT,
-            payload TEXT NOT NULL,
             pin INT,
             sats {db.big_int},
             timestamp TIMESTAMP NOT NULL DEFAULT {db.timestamp_now}

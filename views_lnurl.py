@@ -55,7 +55,6 @@ async def lnurl_params(
     lnpos_payment = LnposPayment(
         id=urlsafe_short_hash(),
         lnpos_id=lnpos.id,
-        payload=p,
         sats=price_msat,
         pin=int(pin),
     )
