@@ -10,7 +10,7 @@ db = Database("ext_lnpos")
 
 async def create_lnpos(data: CreateLnpos) -> Lnpos:
 
-    lnpos_id = urlsafe_short_hash()[:16]
+    lnpos_id = urlsafe_short_hash()[:5]
     lnpos_key = urlsafe_short_hash()[:16]
     device = Lnpos(
         id=lnpos_id,
