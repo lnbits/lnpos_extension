@@ -1,6 +1,5 @@
 from typing import Optional
 
-import shortuuid
 from lnbits.db import Database
 from lnbits.helpers import urlsafe_short_hash
 
@@ -11,8 +10,8 @@ db = Database("ext_lnpos")
 
 async def create_lnpos(data: CreateLnpos) -> Lnpos:
 
-    lnpos_id = shortuuid.uuid()[:5]
-    lnpos_key = urlsafe_short_hash()
+    lnpos_id = urlsafe_short_hash()[:5]
+    lnpos_key = urlsafe_short_hash()[:16]
     device = Lnpos(
         id=lnpos_id,
         key=lnpos_key,
