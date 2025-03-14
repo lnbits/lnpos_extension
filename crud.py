@@ -86,7 +86,7 @@ async def get_lnpos_payments(
     q = ",".join([f"'{w}'" for w in lnpos_ids])
     return await db.fetchall(
         f"""
-        SELECT * FROM lnpos.lnpos_payment WHERE deviceid IN ({q})
+        SELECT * FROM lnpos.lnpos_payment WHERE fossa_id IN ({q})
         ORDER BY id
         """,
         model=LnposPayment,
