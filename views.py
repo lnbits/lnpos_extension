@@ -33,24 +33,23 @@ async def displaypin(request: Request, payment_id: str):
     lnpos_payment = await get_lnpos_payment(payment_id)
     if not lnpos_payment:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="No lnpos payment")
-    device = await get_lnpos(lnpos_payment.lnpos_id)
-    if not device:
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="lnpos not found.")
     if not lnpos_payment.payment_hash:
         raise HTTPException(
             HTTPStatus.NOT_FOUND, "Payment_hash of lnpos_payment is missing."
         )
+    device = await get_lnpos(lnpos_payment.lnpos_id)
+    if not device:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="lnpos not found.")
     payment = await get_standalone_payment(lnpos_payment.payment_hash)
     if not payment:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Payment not found."
         )
-    status = await payment.check_status()
-    if status.success:
+    if payment.success:
         return lnpos_renderer().TemplateResponse(
             "lnpos/paid.html", {"request": request, "pin": lnpos_payment.pin}
         )
     return lnpos_renderer().TemplateResponse(
         "lnpos/error.html",
-        {"request": request, "pin": "filler", "not_paid": True},
+        {"request": request},
     )
