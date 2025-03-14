@@ -45,21 +45,22 @@ async def lnurl_v1_params(
             HTTPStatus.BAD_REQUEST, detail=f"decryption error: {exc!s}"
         ) from exc
 
-    price_msat = (
+    price_sat = (
         await fiat_amount_as_satoshis(float(amount_in_cent) / 100, lnpos.currency)
         if lnpos.currency != "sat"
         else amount_in_cent
     )
-    if price_msat is None:
+    if price_sat is None:
         raise HTTPException(HTTPStatus.BAD_REQUEST, detail="Price fetch error.")
 
-    price_msat = int(price_msat * ((lnpos.profit / 100) + 1))
+    price_sat = int(price_sat * ((lnpos.profit / 100) + 1))
+    price_msat = price_sat * 1000
 
     lnpos_payment = LnposPayment(
         id=urlsafe_short_hash(),
         lnpos_id=lnpos.id,
         payload=p,
-        sats=price_msat * 1000,
+        sats=price_msat,
         pin=int(pin),
     )
     await create_lnpos_payment(lnpos_payment)
@@ -68,8 +69,8 @@ async def lnurl_v1_params(
         "callback": str(
             request.url_for("lnpos.lnurl_callback", payment_id=lnpos_payment.id)
         ),
-        "minSendable": price_msat * 1000,
-        "maxSendable": price_msat * 1000,
+        "minSendable": price_msat,
+        "maxSendable": price_msat,
         "metadata": lnpos.lnurlpay_metadata,
     }
 
