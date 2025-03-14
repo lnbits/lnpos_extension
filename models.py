@@ -28,7 +28,7 @@ class Lnpos(BaseModel):
 class LnposPayment(BaseModel):
     id: str
     lnpos_id: str
-    payment_hash: str
     payload: str
     pin: int
     sats: int
+    payment_hash: Optional[str] = None

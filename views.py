@@ -36,6 +36,10 @@ async def displaypin(request: Request, payment_id: str):
     device = await get_lnpos(lnpos_payment.lnpos_id)
     if not device:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="lnpos not found.")
+    if not lnpos_payment.payment_hash:
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, "Payment_hash of lnpos_payment is missing."
+        )
     payment = await get_standalone_payment(lnpos_payment.payment_hash)
     if not payment:
         raise HTTPException(
