@@ -15,11 +15,11 @@ from .crud import (
 from .helpers import xor_decrypt
 from .models import LnposPayment
 
-lnpos_lnurl_router = APIRouter()
+lnpos_lnurl_router = APIRouter(prefix="/api/v1/lnurl")
 
 
 @lnpos_lnurl_router.get(
-    "/api/v1/lnurl/{lnpos_id}",
+    "/{lnpos_id}",
     status_code=HTTPStatus.OK,
     name="lnpos.lnurl_v1_params",
 )
@@ -74,7 +74,7 @@ async def lnurl_v1_params(
 
 
 @lnpos_lnurl_router.get(
-    "/api/v1/lnurl/cb/{payment_id}",
+    "/cb/{payment_id}",
     status_code=HTTPStatus.OK,
     name="lnpos.lnurl_callback",
 )
