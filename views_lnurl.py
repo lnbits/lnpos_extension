@@ -1,6 +1,5 @@
 from http import HTTPStatus
 
-from Cryptodome.Cipher import AES
 from fastapi import APIRouter, HTTPException, Query, Request
 from lnbits.core.services import create_invoice
 from lnbits.helpers import urlsafe_short_hash
@@ -14,13 +13,24 @@ from .crud import (
     get_lnpos_payment,
     update_lnpos_payment,
 )
+from .helpers import aes_encrypt
 from .models import LnposPayment
 
 lnpos_lnurl_router = APIRouter(prefix="/api/v1/lnurl")
 lnpos_lnurl_router.route_class = LnurlErrorResponseHandler
 
 
-async def _validate_payload(payload: str, iv: str, lnpos_id: str, key: str) -> str:
+@lnpos_lnurl_router.get("/{lnpos_id}")
+async def lnurl_params(
+    request: Request,
+    lnpos_id: str,
+    payload: str = Query(..., alias="p"),
+    iv: str = Query(...),
+):
+    lnpos = await get_lnpos(lnpos_id)
+    if not lnpos:
+        raise HTTPException(HTTPStatus.NOT_FOUND, "lnpos not found.")
+
     if len(payload) % 16 != 0:
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid payload length.")
     if len(iv) != 32:
@@ -33,46 +43,28 @@ async def _validate_payload(payload: str, iv: str, lnpos_id: str, key: str) -> s
     if lnpos_payment:
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Payment already registered.")
     try:
-        _iv = bytes.fromhex(iv)
-        _ct = bytes.fromhex(payload)
-        cipher = AES.new(key.encode(), AES.MODE_CBC, _iv)
-        pt = cipher.decrypt(_ct)
-        msg = pt.split(b"\x00")[0].decode()
-        return msg
+        msg = aes_encrypt(lnpos.key, iv, payload)
     except Exception as e:
         logger.debug(f"Error decrypting payload: {e}")
         logger.debug(f"Payload: {payload}")
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid payload.") from e
 
-
-@lnpos_lnurl_router.get("/{lnpos_id}")
-async def lnurl_params(
-    request: Request,
-    lnpos_id: str,
-    payload: str = Query(..., alias="p"),
-    iv: str = Query(...),
-):
-    lnpos = await get_lnpos(lnpos_id)
-    if not lnpos:
-        return {
-            "status": "ERROR",
-            "reason": f"lnpos {lnpos_id} not found on this server",
-        }
-    msg = await _validate_payload(payload, iv, lnpos.id, lnpos.key)
     pin, amount = msg.split(":")
     if lnpos.currency == "sat":
         price_sat = int(amount)
     else:
         price_sat = await fiat_amount_as_satoshis(float(amount) / 100, lnpos.currency)
         if price_sat is None:
-            return {"status": "ERROR", "reason": "Price fetch error."}
+            raise HTTPException(HTTPStatus.BAD_REQUEST, "Price fetch error.")
+
     price_sat = int(price_sat * ((lnpos.profit / 100) + 1))
+    price_msat = price_sat * 1000
+
     lnpos_payment = LnposPayment(
         id=urlsafe_short_hash(),
         lnpos_id=lnpos.id,
         sats=price_sat,
         pin=int(pin),
-        payload="unused",
     )
     await create_lnpos_payment(lnpos_payment)
     return {
@@ -80,8 +72,8 @@ async def lnurl_params(
         "callback": str(
             request.url_for("lnpos.lnurl_callback", payment_id=lnpos_payment.id)
         ),
-        "minSendable": price_sat * 1000,
-        "maxSendable": price_sat * 1000,
+        "minSendable": price_msat,
+        "maxSendable": price_msat,
         "metadata": lnpos.lnurlpay_metadata,
     }
 
