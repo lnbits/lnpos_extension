@@ -55,7 +55,7 @@ async def lnurl_params(
     lnpos_payment = LnposPayment(
         id=urlsafe_short_hash(),
         lnpos_id=lnpos.id,
-        sats=price_msat,
+        sats=price_sat,
         pin=int(pin),
     )
     await create_lnpos_payment(lnpos_payment)
@@ -85,19 +85,18 @@ async def lnurl_callback(request: Request, payment_id: str):
 
     payment = await create_invoice(
         wallet_id=lnpos.wallet,
-        amount=int(lnpos_payment.sats / 1000),
+        amount=lnpos_payment.sats,
         memo=lnpos.title,
         unhashed_description=lnpos.lnurlpay_metadata.encode(),
         extra={"tag": "PoS"},
     )
     lnpos_payment.payment_hash = payment.payment_hash
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
-
     return {
         "pr": payment.bolt11,
         "successAction": {
             "tag": "url",
-            "description": "Check the attached link",
+            "description": "Check the attached link for the pin.",
             "url": str(request.url_for("lnpos.displaypin", payment_id=payment_id)),
         },
         "routes": [],
