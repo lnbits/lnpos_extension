@@ -60,7 +60,6 @@ async def lnurl_v1_params(
         payload=p,
         sats=price_msat * 1000,
         pin=int(pin),
-        payment_hash="payment_hash",
     )
     await create_lnpos_payment(lnpos_payment)
     return {
