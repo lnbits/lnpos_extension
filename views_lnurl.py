@@ -20,12 +20,8 @@ lnpos_lnurl_router = APIRouter(prefix="/api/v1/lnurl")
 lnpos_lnurl_router.route_class = LnurlErrorResponseHandler
 
 
-@lnpos_lnurl_router.get(
-    "/{lnpos_id}",
-    status_code=HTTPStatus.OK,
-    name="lnpos.lnurl_v1_params",
-)
-async def lnurl_v1_params(
+@lnpos_lnurl_router.get("/{lnpos_id}")
+async def lnurl_params(
     request: Request,
     lnpos_id: str,
     p: str = Query(None),
