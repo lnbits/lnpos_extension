@@ -91,38 +91,3 @@ async def get_lnpos_payments(
         """,
         model=LnposPayment,
     )
-
-
-async def get_lnpos_payment_by_payhash(
-    payhash: str,
-) -> Optional[LnposPayment]:
-    return await db.fetchone(
-        "SELECT * FROM lnpos.lnpos_payment WHERE payhash = :payhash",
-        {"payhash": payhash},
-        LnposPayment,
-    )
-
-
-async def get_lnpos_payment_by_payload(
-    payload: str,
-) -> Optional[LnposPayment]:
-    return await db.fetchone(
-        "SELECT * FROM lnpos.lnpos_payment WHERE payload = :payload",
-        {"payload": payload},
-        LnposPayment,
-    )
-
-
-async def get_recent_lnpos_payment(payload: str) -> Optional[LnposPayment]:
-    return await db.fetchone(
-        """
-        SELECT * FROM lnpos.lnpos_payment
-        WHERE payload = :payload ORDER BY timestamp DESC LIMIT 1
-        """,
-        {"payload": payload},
-        LnposPayment,
-    )
-
-
-async def delete_atm_payment_link(atm_id: str) -> None:
-    await db.execute("DELETE FROM lnpos.lnpos_payment WHERE id = :id", {"id": atm_id})

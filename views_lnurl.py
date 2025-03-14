@@ -8,12 +8,11 @@ from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 
 from .crud import (
     create_lnpos_payment,
-    delete_atm_payment_link,
     get_lnpos,
     get_lnpos_payment,
     update_lnpos_payment,
 )
-from .helpers import register_atm_payment, xor_decrypt
+from .helpers import xor_decrypt
 from .models import LnposPayment
 
 lnpos_lnurl_router = APIRouter()
@@ -28,7 +27,6 @@ async def lnurl_v1_params(
     request: Request,
     lnpos_id: str,
     p: str = Query(None),
-    atm: str = Query(None),
 ):
     lnpos = await get_lnpos(lnpos_id)
     if not lnpos:
@@ -54,20 +52,6 @@ async def lnurl_v1_params(
     if price_msat is None:
         return {"status": "ERROR", "reason": "Price fetch error."}
 
-    if atm:
-        lnpos_payment, price_msat = await register_atm_payment(lnpos, p)
-        if not lnpos_payment:
-            return {"status": "ERROR", "reason": "Payment already claimed."}
-        return {
-            "tag": "withdrawRequest",
-            "callback": str(
-                request.url_for("lnpos.lnurl_callback", paymentid=lnpos_payment.id)
-            ),
-            "k1": lnpos_payment.payload,
-            "minWithdrawable": price_msat,
-            "maxWithdrawable": price_msat,
-            "defaultDescription": f"{lnpos.title} ID: {lnpos_payment.id}",
-        }
     price_msat = int(price_msat * ((lnpos.profit / 100) + 1))
 
     lnpos_payment = LnposPayment(
@@ -101,7 +85,6 @@ async def lnurl_callback(request: Request, payment_id: str):
         return {"status": "ERROR", "reason": "lnpos_payment not found."}
     lnpos = await get_lnpos(lnpos_payment.lnpos_id)
     if not lnpos:
-        await delete_atm_payment_link(payment_id)
         return {"status": "ERROR", "reason": "lnpos not found."}
 
     payment = await create_invoice(
