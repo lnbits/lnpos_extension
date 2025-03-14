@@ -13,7 +13,7 @@ from .crud import (
     get_lnpos_payment,
     update_lnpos_payment,
 )
-from .helpers import aes_encrypt
+from .helpers import aes_decrypt
 from .models import LnposPayment
 
 lnpos_lnurl_router = APIRouter(prefix="/api/v1/lnurl")
@@ -43,7 +43,7 @@ async def lnurl_params(
     if lnpos_payment:
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Payment already registered.")
     try:
-        msg = aes_encrypt(lnpos.key, iv, payload)
+        msg = aes_decrypt(lnpos.key, iv, payload)
     except Exception as e:
         logger.debug(f"Error decrypting payload: {e}")
         logger.debug(f"Payload: {payload}")
