@@ -46,10 +46,6 @@ window.app = Vue.createApp({
           rowsPerPage: 10
         }
       },
-      settingsDialog: {
-        show: false,
-        data: {}
-      },
       formDialog: {
         show: false,
         data: {}
@@ -142,13 +138,12 @@ window.app = Vue.createApp({
       this.formDialog.data = _.clone(lnpos)
       this.formDialog.show = true
     },
-    openSettings(lnposId) {
+    copyDeviceString(lnposId) {
       const lnpos = _.findWhere(this.lnposs, {
         id: lnposId
       })
-      this.deviceString = `${this.protocol}//${this.location}/lnpos/api/v1/lnurl/${lnpos.id},${lnpos.key},${lnpos.currency}`
-      this.settingsDialog.data = _.clone(lnpos)
-      this.settingsDialog.show = true
+      const deviceString = `${this.protocol}//${this.location}/lnpos/api/v1/lnurl/${lnpos.id},${lnpos.key},${lnpos.currency}`
+      this.copyText(deviceString)
     },
     updateLnpos(wallet, data) {
       const updatedData = {}
