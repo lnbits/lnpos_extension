@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from math import ceil
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from lnbits.core.services import create_invoice
@@ -31,9 +32,9 @@ async def lnurl_params(
     if not lnpos:
         raise HTTPException(HTTPStatus.NOT_FOUND, "lnpos not found.")
 
-    if len(payload) % 16 != 0:
+    if len(payload) % 22 != 0:
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid payload length.")
-    if len(iv) != 32:
+    if len(iv) != 22:
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid IV length.")
     lnpos_payment = await get_lnpos_payment(iv)
     if lnpos_payment and lnpos_payment.lnpos_id != lnpos_id:
@@ -54,7 +55,7 @@ async def lnurl_params(
     price_sat = (
         await fiat_amount_as_satoshis(float(amount_in_cent) / 100, lnpos.currency)
         if lnpos.currency != "sat"
-        else int(amount_in_cent)
+        else ceil(float(amount_in_cent))
     )
     if price_sat is None:
         raise HTTPException(HTTPStatus.BAD_REQUEST, detail="Price fetch error.")
