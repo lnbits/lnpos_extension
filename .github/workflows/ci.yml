@@ -13,7 +13,7 @@ jobs:
     needs: [lint]
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
+        python-version: ['3.10']
     steps:
       - uses: actions/checkout@v4
       - uses: lnbits/lnbits/.github/actions/prepare@dev
