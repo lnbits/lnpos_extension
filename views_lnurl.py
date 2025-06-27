@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from lnbits.core.services import create_invoice
 from lnbits.helpers import urlsafe_short_hash
 from lnbits.lnurl import LnurlErrorResponseHandler
+from lnbits.utils.crypto import AESCipher
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 from loguru import logger
 
@@ -14,7 +15,6 @@ from .crud import (
     get_lnpos_payment,
     update_lnpos_payment,
 )
-from .helpers import aes_decrypt
 from .models import LnposPayment
 
 lnpos_lnurl_router = APIRouter(prefix="/api/v1/lnurl")
@@ -26,7 +26,6 @@ async def lnurl_params(
     request: Request,
     lnpos_id: str,
     payload: str = Query(..., alias="p"),
-    iv: str = Query(...),
 ):
     lnpos = await get_lnpos(lnpos_id)
     if not lnpos:
@@ -34,17 +33,9 @@ async def lnurl_params(
 
     if len(payload) % 22 != 0:
         raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid payload length.")
-    if len(iv) != 22:
-        raise HTTPException(HTTPStatus.BAD_REQUEST, "Invalid IV length.")
-    lnpos_payment = await get_lnpos_payment(iv)
-    if lnpos_payment and lnpos_payment.lnpos_id != lnpos_id:
-        raise HTTPException(HTTPStatus.BAD_REQUEST, "Not your payment.")
-    if lnpos_payment and lnpos_payment.payment_hash:
-        raise HTTPException(HTTPStatus.BAD_REQUEST, "Payment already claimed.")
-    if lnpos_payment:
-        raise HTTPException(HTTPStatus.BAD_REQUEST, "Payment already registered.")
     try:
-        msg = aes_decrypt(lnpos.key, iv, payload)
+        aes = AESCipher(lnpos.key)
+        msg = aes.decrypt(payload, urlsafe=True)
     except Exception as e:
         logger.debug(f"Error decrypting payload: {e}")
         logger.debug(f"Payload: {payload}")
