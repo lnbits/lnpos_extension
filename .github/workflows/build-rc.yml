@@ -1,0 +1,77 @@
+name: Build Release Candidate
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  build-rc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get next RC version
+        id: version
+        run: |
+          # Get the latest RC tag for v1.0.1
+          LATEST_RC=$(git tag -l "v1.0.1-rc.*" | sort -V | tail -1)
+          
+          if [ -z "$LATEST_RC" ]; then
+            # No RC tags exist, start with rc.1
+            NEXT_RC="v1.0.1-rc.1"
+          else
+            # Extract the RC number and increment
+            RC_NUM=$(echo $LATEST_RC | sed 's/.*-rc\.//')
+            NEXT_RC_NUM=$((RC_NUM + 1))
+            NEXT_RC="v1.0.1-rc.$NEXT_RC_NUM"
+          fi
+          
+          echo "next_version=$NEXT_RC" >> $GITHUB_OUTPUT
+          echo "Next RC version: $NEXT_RC"
+      
+      - name: Create RC tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a ${{ steps.version.outputs.next_version }} -m "Release candidate ${{ steps.version.outputs.next_version }} - Cursor-MCP-MAF"
+          git push origin ${{ steps.version.outputs.next_version }}
+      
+      - name: Create archive
+        run: |
+          # Create archive directory
+          mkdir -p archive
+          
+          # Copy all files except .git, .github, and other build artifacts
+          rsync -av --exclude='.git*' --exclude='archive' --exclude='venv' --exclude='__pycache__' --exclude='*.pyc' . archive/
+          
+          # Create the zip file
+          cd archive
+          zip -r ../lnpos_extension-${{ steps.version.outputs.next_version }}.zip .
+          cd ..
+      
+      - name: Create GitHub Release
+        uses: ncipollo/create-release@v1
+        with:
+          tag: ${{ steps.version.outputs.next_version }}
+          name: ${{ steps.version.outputs.next_version }}
+          body: |
+            ## Release Candidate ${{ steps.version.outputs.next_version }}
+            
+            This is an automated release candidate build from branch: ${{ github.ref_name }}
+            
+            **Commit:** ${{ github.sha }}
+            **Branch:** ${{ github.ref_name }}
+            
+            Manual registry update required.
+            
+            Created by Cursor-MCP-MAF
+          files: lnpos_extension-${{ steps.version.outputs.next_version }}.zip
+          prerelease: true
+          draft: false 
