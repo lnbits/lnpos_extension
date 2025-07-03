@@ -104,12 +104,33 @@ async def lnurl_callback(request: Request, payment_id: str):
         await delete_atm_payment_link(payment_id)
         return {"status": "ERROR", "reason": "lnpos not found."}
 
+    # Re-decrypt payload to get original fiat amount for tax compliance
+    data = base64.urlsafe_b64decode(lnpos_payment.payload)
+    try:
+        pin, amount_in_cent = xor_decrypt(lnpos.key.encode(), data)
+    except Exception:
+        # Fallback to stored pin if decryption fails
+        pin = str(lnpos_payment.pin)
+        amount_in_cent = 0
+
+    # Create comprehensive extra_json structure for tax compliance
+    extra_data = {
+        "tag": "PoS",
+        "pos": {
+            "pin_url": str(request.url_for("lnpos.displaypin", payment_id=payment_id)),
+            "pin": int(pin),
+            "pos_id": lnpos_payment.lnpos_id,
+            "requested_amount": float(amount_in_cent) / 100,
+            "requested_currency": lnpos.currency
+        }
+    }
+
     payment = await create_invoice(
         wallet_id=lnpos.wallet,
         amount=int(lnpos_payment.sats / 1000),
         memo=lnpos.title,
         unhashed_description=lnpos.lnurlpay_metadata.encode(),
-        extra={"tag": "PoS"},
+        extra=extra_data,
     )
     lnpos_payment.payment_hash = payment.payment_hash
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
