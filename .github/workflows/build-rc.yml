@@ -57,12 +57,12 @@ jobs:
           cd ..
       
       - name: Create GitHub Release
-        uses: ncipollo/create-release@v1
-        with:
-          tag: ${{ steps.version.outputs.next_version }}
-          name: ${{ steps.version.outputs.next_version }}
-          body: |
-            ## Release Candidate ${{ steps.version.outputs.next_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ steps.version.outputs.next_version }} \
+            --title "${{ steps.version.outputs.next_version }}" \
+            --notes "## Release Candidate ${{ steps.version.outputs.next_version }}
             
             This is an automated release candidate build from branch: ${{ github.ref_name }}
             
@@ -71,7 +71,6 @@ jobs:
             
             Manual registry update required.
             
-            Created by Cursor-MCP-MAF
-          files: lnpos_extension-${{ steps.version.outputs.next_version }}.zip
-          prerelease: true
-          draft: false 
+            Created by Cursor-MCP-MAF" \
+            --prerelease \
+            lnpos_extension-${{ steps.version.outputs.next_version }}.zip 
