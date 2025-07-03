@@ -45,16 +45,16 @@ jobs:
       
       - name: Create archive
         run: |
-          # Create archive directory
-          mkdir -p archive
-          
-          # Copy all files except .git, .github, and other build artifacts
-          rsync -av --exclude='.git*' --exclude='archive' --exclude='venv' --exclude='__pycache__' --exclude='*.pyc' . archive/
-          
-          # Create the zip file
-          cd archive
-          zip -r ../lnpos_extension-${{ steps.version.outputs.next_version }}.zip .
-          cd ..
+          # Create the zip file directly from the current directory
+          # Exclude files that shouldn't be in the extension package
+          zip -r lnpos_extension-${{ steps.version.outputs.next_version }}.zip . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "venv/*" \
+            -x "__pycache__/*" \
+            -x "*.pyc" \
+            -x ".DS_Store" \
+            -x "*.log"
       
       - name: Create GitHub Release
         env:
