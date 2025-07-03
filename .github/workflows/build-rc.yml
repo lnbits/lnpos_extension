@@ -45,16 +45,36 @@ jobs:
       
       - name: Create archive
         run: |
-          # Create the zip file directly from the current directory
-          # Exclude files that shouldn't be in the extension package
-          zip -r lnpos_extension-${{ steps.version.outputs.next_version }}.zip . \
-            -x ".git/*" \
-            -x ".github/*" \
-            -x "venv/*" \
-            -x "__pycache__/*" \
-            -x "*.pyc" \
-            -x ".DS_Store" \
-            -x "*.log"
+          # Create a temporary directory structure that matches LNbits expectations
+          mkdir -p temp_package/lnpos
+          
+          # Copy all extension files to the lnpos subdirectory
+          # Copy Python files
+          cp *.py temp_package/lnpos/
+          
+          # Copy configuration files
+          cp *.json temp_package/lnpos/
+          
+          # Copy other necessary files
+          cp *.md temp_package/lnpos/
+          cp *.toml temp_package/lnpos/
+          cp *.lock temp_package/lnpos/
+          cp LICENSE temp_package/lnpos/ 2>/dev/null || true
+          cp Makefile temp_package/lnpos/ 2>/dev/null || true
+          cp toc.md temp_package/lnpos/ 2>/dev/null || true
+          
+          # Copy directories
+          cp -r static temp_package/lnpos/
+          cp -r templates temp_package/lnpos/
+          cp -r tests temp_package/lnpos/
+          
+          # Create the zip file from the temporary directory
+          cd temp_package
+          zip -r ../lnpos_extension-${{ steps.version.outputs.next_version }}.zip .
+          cd ..
+          
+          # Clean up temporary directory
+          rm -rf temp_package
       
       - name: Create GitHub Release
         env:
