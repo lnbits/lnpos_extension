@@ -113,13 +113,12 @@ async def lnurl_callback(
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
 
     pr = parse_obj_as(LightningInvoice, payment.bolt11)
-    callback_url = parse_obj_as(
-        CallbackUrl, str(request.url_for("lnpos.lnurl_callback", payment_id=payment_id))
-    )
+    url = str(request.url_for("lnpos.displaypin", payment_id=payment_id))
+    pin_url = parse_obj_as(CallbackUrl, url)
     action = UrlAction(
         # TODO remove this when lib is updated
         tag=LnurlPaySuccessActionTag.url,
         description=Max144Str("Check the attached link for the pin."),
-        url=callback_url,
+        url=pin_url,
     )
     return LnurlPayActionResponse(pr=pr, successAction=action)
