@@ -48,7 +48,6 @@ async def lnurl_params(
         msg = aes.decrypt(payload, urlsafe=True)
     except Exception as e:
         logger.debug(f"Error decrypting payload: {e}")
-        logger.debug(f"Payload: {payload}")
         return LnurlErrorResponse(reason="Invalid payload.")
 
     pin, amount_in_cent = msg.split(":")
@@ -62,22 +61,24 @@ async def lnurl_params(
         return LnurlErrorResponse(reason="Price fetch error.")
 
     price_sat = int(price_sat * ((lnpos.profit / 100) + 1))
-    price_msat = price_sat * 1000
-
-    lnpos_payment = LnposPayment(
-        id=urlsafe_short_hash(),
-        lnpos_id=lnpos.id,
-        sats=price_sat,
-        pin=int(pin),
-    )
-    await create_lnpos_payment(lnpos_payment)
+    
+    # Using the payload saves the db getting spammed with the same payment
+    lnpos_payment = await get_lnpos_payment(payload)
+    if not lnpos_payment:
+        lnpos_payment = LnposPayment(
+            id=payload,
+            lnpos_id=lnpos.id,
+            sats=price_sat,
+            pin=int(pin),
+        )
+        await create_lnpos_payment(lnpos_payment)
 
     url = request.url_for("lnpos.lnurl_callback", payment_id=lnpos_payment.id)
     callback_url = parse_obj_as(CallbackUrl, str(url))
     return LnurlPayResponse(
         callback=callback_url,
-        minSendable=MilliSatoshi(price_msat),
-        maxSendable=MilliSatoshi(price_msat),
+        minSendable=MilliSatoshi(lnpos_payment.sats * 1000),
+        maxSendable=MilliSatoshi(lnpos_payment.sats * 1000),
         metadata=lnpos.lnurlpay_metadata,
         # TODO remove those when lib is updated
         commentAllowed=None,
@@ -113,8 +114,7 @@ async def lnurl_callback(
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
 
     pr = parse_obj_as(LightningInvoice, payment.bolt11)
-    url = str(request.url_for("lnpos.displaypin", payment_id=payment_id))
-    pin_url = parse_obj_as(CallbackUrl, url)
+    pin_url = str(request.url_for("lnpos.displaypin", payment_id=payment_id))
     action = UrlAction(
         # TODO remove this when lib is updated
         tag=LnurlPaySuccessActionTag.url,
