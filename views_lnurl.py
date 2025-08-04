@@ -6,6 +6,7 @@ from lnbits.core.services import create_invoice
 from lnbits.utils.crypto import AESCipher
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 from lnurl import (
+    CallbackUrl,
     LightningInvoice,
     LnurlErrorResponse,
     LnurlPayActionResponse,
