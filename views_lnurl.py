@@ -3,7 +3,6 @@ from math import ceil
 
 from fastapi import APIRouter, Query, Request
 from lnbits.core.services import create_invoice
-from lnbits.helpers import urlsafe_short_hash
 from lnbits.utils.crypto import AESCipher
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 from lnurl import (
@@ -61,7 +60,7 @@ async def lnurl_params(
         return LnurlErrorResponse(reason="Price fetch error.")
 
     price_sat = int(price_sat * ((lnpos.profit / 100) + 1))
-    
+
     # Using the payload saves the db getting spammed with the same payment
     lnpos_payment = await get_lnpos_payment(payload)
     if not lnpos_payment:
