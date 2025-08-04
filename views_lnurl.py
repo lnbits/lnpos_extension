@@ -6,7 +6,6 @@ from lnbits.core.services import create_invoice
 from lnbits.utils.crypto import AESCipher
 from lnbits.utils.exchange_rates import fiat_amount_as_satoshis
 from lnurl import (
-    CallbackUrl,
     LightningInvoice,
     LnurlErrorResponse,
     LnurlPayActionResponse,
@@ -14,6 +13,7 @@ from lnurl import (
     LnurlPaySuccessActionTag,
     Max144Str,
     MilliSatoshi,
+    Url,
     UrlAction,
 )
 from loguru import logger
@@ -113,7 +113,8 @@ async def lnurl_callback(
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
 
     pr = parse_obj_as(LightningInvoice, payment.bolt11)
-    pin_url = str(request.url_for("lnpos.displaypin", payment_id=payment_id))
+    url = request.url_for("lnpos.displaypin", payment_id=payment_id)
+    pin_url = parse_obj_as(Url, url)
     action = UrlAction(
         # TODO remove this when lib is updated
         tag=LnurlPaySuccessActionTag.url,
