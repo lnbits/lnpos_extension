@@ -11,7 +11,6 @@ from lnurl import (
     LnurlErrorResponse,
     LnurlPayActionResponse,
     LnurlPayResponse,
-    LnurlPaySuccessActionTag,
     Max144Str,
     MilliSatoshi,
     Url,
@@ -80,11 +79,6 @@ async def lnurl_params(
         minSendable=MilliSatoshi(lnpos_payment.sats * 1000),
         maxSendable=MilliSatoshi(lnpos_payment.sats * 1000),
         metadata=lnpos.lnurlpay_metadata,
-        # TODO remove those when lib is updated
-        commentAllowed=None,
-        payerData=None,
-        allowsNostr=None,
-        nostrPubkey=None,
     )
 
 
@@ -117,8 +111,6 @@ async def lnurl_callback(
     url = request.url_for("lnpos.displaypin", payment_id=payment_id)
     pin_url = parse_obj_as(Url, url)
     action = UrlAction(
-        # TODO remove this when lib is updated
-        tag=LnurlPaySuccessActionTag.url,
         description=Max144Str("Check the attached link for the pin."),
         url=pin_url,
     )
