@@ -1,5 +1,3 @@
-from typing import Optional
-
 from lnbits.db import Database
 from lnbits.helpers import urlsafe_short_hash
 
@@ -31,7 +29,7 @@ async def update_lnpos(device: Lnpos) -> Lnpos:
     return device
 
 
-async def get_lnpos(lnpos_id: str) -> Optional[Lnpos]:
+async def get_lnpos(lnpos_id: str) -> Lnpos | None:
     return await db.fetchone(
         "SELECT * FROM lnpos.lnpos WHERE id = :id",
         {"id": lnpos_id},
@@ -69,7 +67,7 @@ async def update_lnpos_payment(
 
 async def get_lnpos_payment(
     lnpos_payment_id: str,
-) -> Optional[LnposPayment]:
+) -> LnposPayment | None:
     return await db.fetchone(
         "SELECT * FROM lnpos.lnpos_payment WHERE id = :id",
         {"id": lnpos_payment_id},

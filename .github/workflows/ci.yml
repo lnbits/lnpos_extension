@@ -25,5 +25,5 @@ jobs:
           job-summary: true
           emoji: false
           click-to-expand: true
-          custom-pytest: poetry run pytest
+          custom-pytest: uv run pytest
           report-title: 'test'
