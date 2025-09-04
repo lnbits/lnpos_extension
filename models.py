@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 from lnurl.types import LnurlPayMetadata
 from pydantic import BaseModel
@@ -8,8 +7,8 @@ from pydantic import BaseModel
 class CreateLnpos(BaseModel):
     title: str
     wallet: str
-    currency: Optional[str] = "sat"
-    profit: Optional[float] = None
+    currency: str | None = "sat"
+    profit: float | None = None
 
 
 class Lnpos(BaseModel):
@@ -30,4 +29,4 @@ class LnposPayment(BaseModel):
     lnpos_id: str
     pin: int
     sats: int
-    payment_hash: Optional[str] = None
+    payment_hash: str | None = None
