@@ -3,7 +3,7 @@
   "name": "LNPoS",
   "short_description": "LNPoS lightning point of sale",
   "tile": "/lnpos/static/image/lnpos.png",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "min_lnbits_version": "1.3.0",
   "contributors": [
     {
