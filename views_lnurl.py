@@ -50,9 +50,10 @@ async def lnurl_params(
         return LnurlErrorResponse(reason="Invalid payload.")
 
     pin, amount_in_cent = msg.split(":")
+    amount = float(amount_in_cent) / 100
 
     price_sat = (
-        await fiat_amount_as_satoshis(float(amount_in_cent) / 100, lnpos.currency)
+        await fiat_amount_as_satoshis(amount, lnpos.currency)
         if lnpos.currency != "sat"
         else ceil(float(amount_in_cent))
     )
@@ -69,7 +70,7 @@ async def lnurl_params(
             lnpos_id=lnpos.id,
             sats=price_sat,
             pin=int(pin),
-            cents=int(amount_in_cent) if lnpos.currency != "sat" else None,
+            amount=amount if lnpos.currency != "sat" else None,
         )
         await create_lnpos_payment(lnpos_payment)
 
@@ -104,8 +105,8 @@ async def lnurl_callback(
         "pos_payment_id": lnpos_payment.id,
     }
 
-    if lnpos.currency != "sat" and lnpos_payment.cents:
-        extra["requested_amount"] = lnpos_payment.cents / 100
+    if lnpos.currency != "sat" and lnpos_payment.amount:
+        extra["requested_amount"] = lnpos_payment.amount
         extra["requested_currency"] = lnpos.currency
 
     payment = await create_invoice(

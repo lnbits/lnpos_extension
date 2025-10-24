@@ -34,8 +34,8 @@ async def m001_initial(db):
     )
 
 
-async def m002_add_cents_to_lnpos_payment(db):
+async def m002_add_amount_to_lnpos_payment(db):
     """
-    Add cents column to lnpos_payment table.
+    Add amount column to lnpos_payment table.
     """
-    await db.execute("ALTER TABLE lnpos.lnpos_payment ADD COLUMN cents INTEGER;")
+    await db.execute("ALTER TABLE lnpos.lnpos_payment ADD COLUMN amount FLOAT;")
