@@ -100,7 +100,7 @@ async def lnurl_params(
     return {
         "tag": "payRequest",
         "callback": str(
-            request.url_for("lnpos.lnurl_callback", payment_id=lnpos_payment.id)
+            request.url_for("lnpos.lnurl_legacy_callback", payment_id=lnpos_payment.id)
         ),
         "minSendable": price_msat,
         "maxSendable": price_msat,
