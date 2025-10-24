@@ -69,6 +69,7 @@ async def lnurl_params(
             lnpos_id=lnpos.id,
             sats=price_sat,
             pin=int(pin),
+            cents=int(amount_in_cent) if lnpos.currency != "sat" else None,
         )
         await create_lnpos_payment(lnpos_payment)
 
@@ -97,12 +98,22 @@ async def lnurl_callback(
     if not lnpos:
         return LnurlErrorResponse(reason="lnpos not found.")
 
+    extra: dict[str, str | float] = {
+        "tag": "PoS",
+        "pos_id": lnpos_payment.lnpos_id,
+        "pos_payment_id": lnpos_payment.id,
+    }
+
+    if lnpos.currency != "sat" and lnpos_payment.cents:
+        extra["requested_amount"] = lnpos_payment.cents / 100
+        extra["requested_currency"] = lnpos.currency
+
     payment = await create_invoice(
         wallet_id=lnpos.wallet,
         amount=lnpos_payment.sats,
         memo=lnpos.title,
         unhashed_description=lnpos.lnurlpay_metadata.encode(),
-        extra={"tag": "PoS"},
+        extra=extra,
     )
     lnpos_payment.payment_hash = payment.payment_hash
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
