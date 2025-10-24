@@ -142,7 +142,7 @@ window.app = Vue.createApp({
       const lnpos = _.findWhere(this.lnposs, {
         id: lnposId
       })
-      const deviceString = `${this.protocol}//${this.location}/lnpos/api/v1/lnurl/${lnpos.id},${lnpos.key},${lnpos.currency}`
+      const deviceString = `${this.protocol}//${this.location}/lnpos/api/v2/lnurl/${lnpos.id},${lnpos.key},${lnpos.currency}`
       this.copyText(deviceString)
     },
     updateLnpos(wallet, data) {

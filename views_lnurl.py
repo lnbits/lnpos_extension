@@ -27,7 +27,7 @@ from .crud import (
 )
 from .models import LnposPayment
 
-lnpos_lnurl_router = APIRouter(prefix="/api/v1/lnurl")
+lnpos_lnurl_router = APIRouter(prefix="/api/v2/lnurl")
 
 
 @lnpos_lnurl_router.get("/{lnpos_id}")
