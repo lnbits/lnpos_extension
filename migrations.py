@@ -33,6 +33,7 @@ async def m001_initial(db):
         """
     )
 
+
 async def m002_add_cents_to_lnpos_payment(db):
     """
     Add cents column to lnpos_payment table.
