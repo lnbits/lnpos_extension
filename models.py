@@ -29,4 +29,5 @@ class LnposPayment(BaseModel):
     lnpos_id: str
     pin: int
     sats: int
+    amount: float | None = None
     payment_hash: str | None = None

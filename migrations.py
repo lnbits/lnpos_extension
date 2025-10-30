@@ -26,9 +26,16 @@ async def m001_initial(db):
             id TEXT NOT NULL PRIMARY KEY,
             lnpos_id TEXT NOT NULL,
             payment_hash TEXT,
-            pin INT,
+            pin INTEGER,
             sats {db.big_int},
             timestamp TIMESTAMP NOT NULL DEFAULT {db.timestamp_now}
         );
         """
     )
+
+
+async def m002_add_amount_to_lnpos_payment(db):
+    """
+    Add amount column to lnpos_payment table.
+    """
+    await db.execute("ALTER TABLE lnpos.lnpos_payment ADD COLUMN amount FLOAT;")
