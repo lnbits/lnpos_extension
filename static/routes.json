@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/lnpos/",
+    "name": "PageLnpos",
+    "template": "/lnpos/static/index.vue",
+    "component": "/lnpos/static/index.js"
+  },
+  {
+    "path": "/lnpos/:payment_id",
+    "name": "PageLnposPublic",
+    "template": "/lnpos/static/display.vue",
+    "component": "/lnpos/static/display.js"
+  }
+]

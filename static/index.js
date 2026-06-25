@@ -1,13 +1,19 @@
-window.app = Vue.createApp({
-  el: '#vue',
-  mixins: [windowMixin],
+window.PageLnpos = {
+  template: '#page-lnpos',
+  computed: {
+    currencies() {
+      if (this.g.allowedCurrencies && this.g.allowedCurrencies.length > 0) {
+        return ['sat', ...this.g.allowedCurrencies]
+      } else {
+        return ['sat', ...(this.g.currencies || [])]
+      }
+    }
+  },
   data() {
     return {
       protocol: window.location.protocol,
       location: window.location.hostname,
       filter: '',
-      currency: 'USD',
-      deviceString: '',
       lnposs: [],
       lnposTable: {
         columns: [
@@ -73,7 +79,6 @@ window.app = Vue.createApp({
         this.createLnpos(this.g.user.wallets[0].adminkey, this.formDialog.data)
       }
     },
-
     createLnpos(wallet, data) {
       const updatedData = {}
       for (const property in data) {
@@ -100,19 +105,6 @@ window.app = Vue.createApp({
         })
         .catch(LNbits.utils.notifyApiError)
     },
-    getLnpos: lnpos_id => {
-      LNbits.api
-        .request(
-          'GET',
-          '/lnpos/api/v1/' + lnpos_id,
-          this.g.user.wallets[0].adminkey
-        )
-        .then(response => {
-          localStorage.setItem('lnpos', JSON.stringify(response.data))
-          localStorage.setItem('inkey', this.g.user.wallets[0].inkey)
-        })
-        .catch(LNbits.utils.notifyApiError)
-    },
     deleteLnpos(lnposId) {
       LNbits.utils
         .confirmDialog('Are you sure you want to delete this pay link?')
@@ -123,27 +115,21 @@ window.app = Vue.createApp({
               '/lnpos/api/v1/' + lnposId,
               this.g.user.wallets[0].adminkey
             )
-            .then(response => {
-              this.lnposs = _.reject(this.lnposs, obj => {
-                return obj.id === lnposId
-              })
+            .then(() => {
+              this.lnposs = _.reject(this.lnposs, obj => obj.id === lnposId)
             })
             .catch(LNbits.utils.notifyApiError)
         })
     },
     openUpdateLnpos(lnposId) {
-      const lnpos = _.findWhere(this.lnposs, {
-        id: lnposId
-      })
+      const lnpos = _.findWhere(this.lnposs, {id: lnposId})
       this.formDialog.data = _.clone(lnpos)
       this.formDialog.show = true
     },
     copyDeviceString(lnposId) {
-      const lnpos = _.findWhere(this.lnposs, {
-        id: lnposId
-      })
+      const lnpos = _.findWhere(this.lnposs, {id: lnposId})
       const deviceString = `${this.protocol}//${this.location}/lnpos/api/v2/lnurl/${lnpos.id},${lnpos.key},${lnpos.currency}`
-      this.copyText(deviceString)
+      this.utils.copyText(deviceString)
     },
     updateLnpos(wallet, data) {
       const updatedData = {}
@@ -152,13 +138,10 @@ window.app = Vue.createApp({
           updatedData[property] = data[property]
         }
       }
-
       LNbits.api
         .request('PUT', '/lnpos/api/v1/' + updatedData.id, wallet, updatedData)
         .then(response => {
-          this.lnposs = _.reject(this.lnposs, obj => {
-            return obj.id === updatedData.id
-          })
+          this.lnposs = _.reject(this.lnposs, obj => obj.id === updatedData.id)
           this.lnposs.push(response.data)
           this.formDialog.show = false
           this.clearFormDialog()
@@ -180,11 +163,5 @@ window.app = Vue.createApp({
   },
   created() {
     this.getLnposs()
-    LNbits.api
-      .request('GET', '/api/v1/currencies')
-      .then(response => {
-        this.currency = response.data
-      })
-      .catch(LNbits.utils.notifyApiError)
   }
-})
+}
