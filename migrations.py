@@ -7,8 +7,7 @@ async def m001_initial(db):
     """
     Initial lnpos table.
     """
-    await db.execute(
-        f"""
+    await db.execute(f"""
         CREATE TABLE lnpos.lnpos (
             id TEXT NOT NULL PRIMARY KEY,
             key TEXT NOT NULL,
@@ -18,10 +17,8 @@ async def m001_initial(db):
             profit FLOAT NOT NULL,
             timestamp TIMESTAMP NOT NULL DEFAULT {db.timestamp_now}
         );
-        """
-    )
-    await db.execute(
-        f"""
+        """)
+    await db.execute(f"""
         CREATE TABLE lnpos.lnpos_payment (
             id TEXT NOT NULL PRIMARY KEY,
             lnpos_id TEXT NOT NULL,
@@ -30,8 +27,7 @@ async def m001_initial(db):
             sats {db.big_int},
             timestamp TIMESTAMP NOT NULL DEFAULT {db.timestamp_now}
         );
-        """
-    )
+        """)
 
 
 async def m002_add_amount_to_lnpos_payment(db):
