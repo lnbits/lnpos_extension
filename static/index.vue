@@ -3,9 +3,12 @@
     <div class="col-12 col-md-7 q-gutter-y-md">
       <q-card>
         <q-card-section>
-          <q-btn unelevated color="primary" @click="formDialog.show = true"
-            >New LNPoS
-          </q-btn>
+          <q-btn
+            unelevated
+            color="primary"
+            :label="$t('lnpos.new_lnpos')"
+            @click="formDialog.show = true"
+          ></q-btn>
         </q-card-section>
       </q-card>
 
@@ -13,7 +16,10 @@
         <q-card-section>
           <div class="row items-center no-wrap q-mb-md">
             <div class="col">
-              <h5 class="text-subtitle1 q-my-none">LNPoS</h5>
+              <h5
+                class="text-subtitle1 q-my-none"
+                v-text="$t('lnpos.lnpos_title')"
+              ></h5>
             </div>
 
             <div class="col-auto">
@@ -22,13 +28,18 @@
                 dense
                 debounce="300"
                 v-model="filter"
-                placeholder="Search"
+                :placeholder="$t('lnpos.search')"
               >
                 <template v-slot:append>
                   <q-icon name="search"></q-icon>
                 </template>
               </q-input>
-              <q-btn flat color="grey" @click="exportCSV">Export to CSV</q-btn>
+              <q-btn
+                flat
+                color="grey"
+                @click="exportCSV"
+                v-text="$t('lnpos.export_csv')"
+              ></q-btn>
             </div>
           </div>
           <q-table
@@ -36,7 +47,7 @@
             dense
             :rows="lnposs"
             row-key="id"
-            :columns="lnposTable.columns"
+            :columns="lnposColumns"
             v-model:pagination="lnposTable.pagination"
             :filter="filter"
           >
@@ -67,7 +78,7 @@
                     icon="edit"
                     color="blue"
                   >
-                    <q-tooltip>Edit LNPoS</q-tooltip>
+                    <q-tooltip v-text="$t('lnpos.edit_lnpos')"></q-tooltip>
                   </q-btn>
                 </q-td>
                 <q-td>
@@ -79,7 +90,7 @@
                     icon="cancel"
                     color="pink"
                   >
-                    <q-tooltip>Delete LNPoS</q-tooltip>
+                    <q-tooltip v-text="$t('lnpos.delete_lnpos')"></q-tooltip>
                   </q-btn>
                 </q-td>
                 <q-td>
@@ -91,7 +102,7 @@
                     icon="perm_data_setting"
                     color="primary"
                   >
-                    <q-tooltip>LNPoS Device string</q-tooltip>
+                    <q-tooltip v-text="$t('lnpos.device_string')"></q-tooltip>
                   </q-btn>
                 </q-td>
                 <q-td
@@ -112,12 +123,15 @@
     <div class="col-12 col-md-5 q-gutter-y-md">
       <q-card>
         <q-card-section>
-          <h6 class="text-subtitle1 q-my-none">LNbits LNPoS Extension</h6>
+          <h6
+            class="text-subtitle1 q-my-none"
+            v-text="$t('lnpos.extension_title')"
+          ></h6>
         </q-card-section>
         <q-separator></q-separator>
         <q-card-section>
           <p>
-            For LNURL based Points of Sale, ATMs, and relay devices<br />
+            <span v-text="$t('lnpos.extension_desc')"></span><br />
             LNPoS:
             <a class="text-secondary" href="https://lnbits.github.io/lnpos">
               https://lnbits.github.io/lnpos</a
@@ -140,7 +154,7 @@
             dense
             v-model.trim="formDialog.data.title"
             type="text"
-            label="Title"
+            :label="$t('lnpos.title_label')"
           ></q-input>
           <q-select
             filled
@@ -148,14 +162,14 @@
             emit-value
             v-model="formDialog.data.wallet"
             :options="g.user.walletOptions"
-            label="Wallet *"
+            :label="$t('lnpos.wallet_label')"
           ></q-select>
           <q-select
             filled
             dense
             v-model.trim="formDialog.data.currency"
             type="text"
-            label="Fiat currency for device"
+            :label="$t('lnpos.currency_label')"
             :options="currencies"
           ></q-select>
           <q-input
@@ -164,7 +178,7 @@
             v-model.trim="formDialog.data.profit"
             type="number"
             max="90"
-            label="Profit margin"
+            :label="$t('lnpos.profit_label')"
           ></q-input>
           <div class="row q-mt-lg">
             <q-btn
@@ -173,19 +187,23 @@
               color="primary"
               :disable="formDialog.data.title == ''"
               type="submit"
-              >Update LNPoS</q-btn
-            >
+              :label="$t('lnpos.update_lnpos')"
+            ></q-btn>
             <q-btn
               v-else
               unelevated
               color="primary"
               :disable="formDialog.data.title == ''"
               type="submit"
-              >Create LNPoS</q-btn
-            >
-            <q-btn @click="cancelLnpos" flat color="grey" class="q-ml-auto"
-              >Cancel</q-btn
-            >
+              :label="$t('lnpos.create_lnpos')"
+            ></q-btn>
+            <q-btn
+              @click="cancelLnpos"
+              flat
+              color="grey"
+              class="q-ml-auto"
+              :label="$t('lnpos.cancel')"
+            ></q-btn>
           </div>
         </q-form>
       </q-card>

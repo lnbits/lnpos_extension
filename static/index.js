@@ -7,6 +7,40 @@ window.PageLnpos = {
       } else {
         return ['sat', ...(this.g.currencies || [])]
       }
+    },
+    lnposColumns() {
+      return [
+        {
+          name: 'title',
+          align: 'left',
+          label: this.$t('lnpos.col_title'),
+          field: 'title'
+        },
+        {
+          name: 'theId',
+          align: 'left',
+          label: this.$t('lnpos.col_id'),
+          field: 'id'
+        },
+        {
+          name: 'key',
+          align: 'left',
+          label: this.$t('lnpos.col_key'),
+          field: 'key'
+        },
+        {
+          name: 'wallet',
+          align: 'left',
+          label: this.$t('lnpos.col_wallet'),
+          field: 'wallet'
+        },
+        {
+          name: 'currency',
+          align: 'left',
+          label: this.$t('lnpos.col_currency'),
+          field: 'currency'
+        }
+      ]
     }
   },
   data() {
@@ -16,38 +50,6 @@ window.PageLnpos = {
       filter: '',
       lnposs: [],
       lnposTable: {
-        columns: [
-          {
-            name: 'title',
-            align: 'left',
-            label: 'title',
-            field: 'title'
-          },
-          {
-            name: 'theId',
-            align: 'left',
-            label: 'id',
-            field: 'id'
-          },
-          {
-            name: 'key',
-            align: 'left',
-            label: 'key',
-            field: 'key'
-          },
-          {
-            name: 'wallet',
-            align: 'left',
-            label: 'wallet',
-            field: 'wallet'
-          },
-          {
-            name: 'currency',
-            align: 'left',
-            label: 'currency',
-            field: 'currency'
-          }
-        ],
         pagination: {
           rowsPerPage: 10
         }
@@ -107,7 +109,7 @@ window.PageLnpos = {
     },
     deleteLnpos(lnposId) {
       LNbits.utils
-        .confirmDialog('Are you sure you want to delete this pay link?')
+        .confirmDialog(this.$t('lnpos.delete_lnpos_confirm'))
         .onOk(() => {
           LNbits.api
             .request(
@@ -158,7 +160,7 @@ window.PageLnpos = {
       }
     },
     exportCSV() {
-      LNbits.utils.exportCSV(this.lnposTable.columns, this.lnposs)
+      LNbits.utils.exportCSV(this.lnposColumns, this.lnposs)
     }
   },
   created() {

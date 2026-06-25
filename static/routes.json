@@ -3,12 +3,14 @@
     "path": "/lnpos/",
     "name": "PageLnpos",
     "template": "/lnpos/static/index.vue",
-    "component": "/lnpos/static/index.js"
+    "component": "/lnpos/static/index.js",
+    "i18n": "/lnpos/static/i18n"
   },
   {
     "path": "/lnpos/:payment_id",
     "name": "PageLnposPublic",
     "template": "/lnpos/static/display.vue",
-    "component": "/lnpos/static/display.js"
+    "component": "/lnpos/static/display.js",
+    "i18n": "/lnpos/static/i18n"
   }
 ]
