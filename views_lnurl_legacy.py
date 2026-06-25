@@ -95,6 +95,7 @@ async def lnurl_params(
         lnpos_id=lnpos.id,
         sats=price_sat,
         pin=int(pin),
+        payload=p,
     )
     await create_lnpos_payment(lnpos_payment)
     return {
