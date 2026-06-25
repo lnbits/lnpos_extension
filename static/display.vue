@@ -11,7 +11,7 @@
               <h3 class="q-my-none" v-text="pin"></h3>
             </div>
             <div v-else>
-              <h3 class="q-my-none">LNURL-pay not paid</h3>
+              <h3 class="q-my-none" v-text="$t('lnpos.not_paid')"></h3>
               <br />
               <q-icon
                 name="warning"
