@@ -68,6 +68,7 @@ async def lnurl_params(
         lnpos_payment = LnposPayment(
             id=payload,
             lnpos_id=lnpos.id,
+            payload=payload,
             sats=price_sat,
             pin=int(pin),
             amount=amount if lnpos.currency != "sat" else None,
