@@ -32,7 +32,7 @@ async def api_lnpos_update(data: CreateLnpos, lnpos_id: str):
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="lnpos does not exist"
         )
-    for field, value in data.dict().items():
+    for field, value in data.model_dump().items():
         setattr(lnpos, field, value)
     return await update_lnpos(lnpos)
 

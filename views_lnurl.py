@@ -11,13 +11,12 @@ from lnurl import (
     LnurlErrorResponse,
     LnurlPayActionResponse,
     LnurlPayResponse,
-    Max144Str,
     MilliSatoshi,
     Url,
     UrlAction,
 )
 from loguru import logger
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 
 from .crud import (
     create_lnpos_payment,
@@ -76,7 +75,7 @@ async def lnurl_params(
         await create_lnpos_payment(lnpos_payment)
 
     url = request.url_for("lnpos.lnurl_callback", payment_id=lnpos_payment.id)
-    callback_url = parse_obj_as(CallbackUrl, str(url))
+    callback_url = TypeAdapter(CallbackUrl).validate_python(str(url))
     return LnurlPayResponse(
         callback=callback_url,
         minSendable=MilliSatoshi(lnpos_payment.sats * 1000),
@@ -120,11 +119,11 @@ async def lnurl_callback(
     lnpos_payment.payment_hash = payment.payment_hash
     lnpos_payment = await update_lnpos_payment(lnpos_payment)
 
-    pr = parse_obj_as(LightningInvoice, payment.bolt11)
+    pr = TypeAdapter(LightningInvoice).validate_python(payment.bolt11)
     url = str(request.url_for("lnpos.displaypin", payment_id=payment_id))
-    pin_url = parse_obj_as(Url, url)
+    pin_url = TypeAdapter(Url).validate_python(url)
     action = UrlAction(
-        description=Max144Str("Check the attached link for the pin."),
+        description="Check the attached link for the pin.",
         url=pin_url,
     )
     return LnurlPayActionResponse(pr=pr, successAction=action)
