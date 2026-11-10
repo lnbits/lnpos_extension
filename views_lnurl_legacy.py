@@ -58,7 +58,9 @@ def xor_decrypt(key, blob):
     return str(pin), amount_in_cent
 
 
-@lnpos_lnurl_legacy_router.get("/{lnpos_id}")
+@lnpos_lnurl_legacy_router.get(
+    "/{lnpos_id}", openapi_extra={"x-lnbits-local-lnurl": True}
+)
 async def lnurl_params(
     request: Request,
     lnpos_id: str,
@@ -113,6 +115,7 @@ async def lnurl_params(
     "/cb/{payment_id}",
     status_code=HTTPStatus.OK,
     name="lnpos.lnurl_legacy_callback",
+    openapi_extra={"x-lnbits-local-lnurl": True},
 )
 async def lnurl_legacy_callback(request: Request, payment_id: str):
     lnpos_payment = await get_lnpos_payment(payment_id)

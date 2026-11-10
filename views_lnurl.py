@@ -29,7 +29,7 @@ from .models import LnposPayment
 lnpos_lnurl_router = APIRouter(prefix="/api/v2/lnurl")
 
 
-@lnpos_lnurl_router.get("/{lnpos_id}")
+@lnpos_lnurl_router.get("/{lnpos_id}", openapi_extra={"x-lnbits-local-lnurl": True})
 async def lnurl_params(
     request: Request,
     lnpos_id: str,
@@ -88,6 +88,7 @@ async def lnurl_params(
     "/cb/{payment_id}",
     status_code=HTTPStatus.OK,
     name="lnpos.lnurl_callback",
+    openapi_extra={"x-lnbits-local-lnurl": True},
 )
 async def lnurl_callback(
     request: Request, payment_id: str
